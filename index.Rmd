@@ -23,12 +23,16 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 #### Introduction 
 
-Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. I obtained the data for the  Vaccinations by Ethnicity distribution of the state of Maryland 
+Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. 
+I obtained the following data for counties in Texas from the county health ranking website 
 
 ```{R}
-# read your datasets in here, e.g., with read_csv() 
 library(tidyverse)
-
+data1 <- read.csv("~/uninsured.csv")
+data2 <- read.csv("~/unemployment.csv")
+data3 <- read.csv("~/pmhd.csv") #poor mental health days
+data4 <- read.csv("~/pphd.csv")
+glimpse(data1)
 ```
 
 #### Tidying: Reshaping

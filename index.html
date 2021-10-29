@@ -1537,9 +1537,22 @@ div.tocify {
 <h3>Elicenda Tovar et22536</h3>
 <div id="introduction" class="section level4">
 <h4>Introduction</h4>
-<p>Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. I obtained the data for the Vaccinations by Ethnicity distribution of the state of Maryland</p>
-<pre class="r"><code># read your datasets in here, e.g., with read_csv()
-library(tidyverse)</code></pre>
+<p>Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. I obtained the following data for counties in Texas from the county health ranking website</p>
+<pre class="r"><code>library(tidyverse)
+data1 &lt;- read.csv(&quot;~/uninsured.csv&quot;)
+data2 &lt;- read.csv(&quot;~/unemployment.csv&quot;)
+data3 &lt;- read.csv(&quot;~/pmhd.csv&quot;)  #poor mental health days
+data4 &lt;- read.csv(&quot;~/pphd.csv&quot;)
+glimpse(data1)</code></pre>
+<pre><code>## Rows: 254
+## Columns: 7
+## $ County       &lt;fct&gt; Anderson, Andrews, Angelina, Aransas, Archer, Armstrong,…
+## $ X            &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+## $ X..Uninsured &lt;fct&gt; &quot;7,202&quot;, &quot;3,398&quot;, &quot;15,019&quot;, &quot;3,961&quot;, &quot;1,158&quot;, &quot;244&quot;, &quot;8,…
+## $ County.Value &lt;fct&gt; 20%, 21%, 21%, 24%, 16%, 17%, 20%, 20%, 29%, 22%, 22%, 1…
+## $ trend        &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
+## $ Error.Margin &lt;fct&gt; 18-22%, 19-23%, 19-23%, 22-27%, 14-18%, 15-19%, 18-22%, …
+## $ Z.Score.     &lt;fct&gt; -0.31, -0.04, 0.04, 0.76, -1.2, -1.04, -0.22, -0.36, 2.0…</code></pre>
 </div>
 <div id="tidying-reshaping" class="section level4">
 <h4>Tidying: Reshaping</h4>
