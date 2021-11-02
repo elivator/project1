@@ -24,20 +24,21 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 #### Introduction 
 
 Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. 
-I obtained the following data for counties in Texas from the county health ranking website 
+I obtained the following data for counties in Texas from the county health ranking website. The Data3 includes the average number of poor mental health days during a span of 30 days for Texas counties.  
 
 ```{R}
 library(tidyverse)
 data1 <- read.csv("~/uninsured.csv")
 data2 <- read.csv("~/unemployment.csv")
 data3 <- read.csv("~/pmhd.csv") #poor mental health days
-data4 <- read.csv("~/pphd.csv")
-glimpse(data1)
+data4 <- read.csv("~/pphd.csv") #poor physical health days 
 ```
 
 #### Tidying: Reshaping
 
 If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.
+
+A tidy dataset included each variable in its own column. each observation in its own row, and each value in its own cell. Since my data is already tidy, I will join the four different datasets and come back to this section to demonstrate my understanding of reshaping data. 
 
 ```{R}
 # your tidying code (if applicable; can also wait until wrangling section)
@@ -47,19 +48,40 @@ If your datasets are tidy already, demonstrate that you can reshape data with pi
 #### Joining/Merging
 
 ```{R}
-# your joining code
+# cleaning data sets using select() and rename()
+data1<- subset(data1, select=c(County,X..Uninsured)) 
+data1<- rename(data1, Uninsured=X..Uninsured)
+data1 %>% group_by(County) %>% summarise(n())
 
-# your joining code
+data2<- subset(data2, select=c(County,X..Unemployed, Labor.Force))
+data2<-rename(data2, Unemployed=X..Unemployed)
+data2 %>% group_by(County) %>% summarise(n())
+
+data3<- subset(data3, select=c(County,County.Value.))
+data3<-rename(data3, PoorMHdays=County.Value.)
+data3 %>% group_by(County) %>% summarise(n())
+
+data4<- subset(data4, select=c(County,County.Value.))
+data4<-rename(data4, PoorPHdays=County.Value.)
+data4 %>% group_by(County) %>% summarise(n())
+
+# joining code below 
+full<- full_join(data1, data2, by=c("County"))
+full2<- full_join(full, data3, by=c("County"))
+finaljoin<- full_join(full2, data4, by=c("County"))
 ```
 
-Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+The data sets had more information than is needed, thus I went ahead and selected only the relevant columns with the select() function. I addition, I used the rename() function to label some of the columns to have a more informative title. To join all four dataset, I chose do do a full join because I cleaned up the datasets beforehand and only had the relevant columns.There are 254 observations in each of the 4 datasest. The datasets include the names of the counties in Texas, therefore it makes sense that they include 254 rows.    
 
 ####  Wrangling
 
 ```{R}
 # your wrangling code
+finaljoin %>% distinct(County) %>% summarise(sum(str_detect(County, "[ ]")))
+finaljoin %>% distinct(County) %>% group_by(County) %>% filter(str_detect(County, "(.)\\1"))
+#arrange, mutate-ifelse
 
-# your wrangling code
+#mean, sd, var, n, quintile, min, max, n_distinict cor
 
 # your wrangling code
 ```

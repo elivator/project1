@@ -1537,41 +1537,124 @@ div.tocify {
 <h3>Elicenda Tovar et22536</h3>
 <div id="introduction" class="section level4">
 <h4>Introduction</h4>
-<p>Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. I obtained the following data for counties in Texas from the county health ranking website</p>
+<p>Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. I obtained the following data for counties in Texas from the county health ranking website. The Data3 includes the average number of poor mental health days during a span of 30 days for Texas counties.</p>
 <pre class="r"><code>library(tidyverse)
 data1 &lt;- read.csv(&quot;~/uninsured.csv&quot;)
 data2 &lt;- read.csv(&quot;~/unemployment.csv&quot;)
 data3 &lt;- read.csv(&quot;~/pmhd.csv&quot;)  #poor mental health days
-data4 &lt;- read.csv(&quot;~/pphd.csv&quot;)
-glimpse(data1)</code></pre>
-<pre><code>## Rows: 254
-## Columns: 7
-## $ County       &lt;fct&gt; Anderson, Andrews, Angelina, Aransas, Archer, Armstrong,…
-## $ X            &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-## $ X..Uninsured &lt;fct&gt; &quot;7,202&quot;, &quot;3,398&quot;, &quot;15,019&quot;, &quot;3,961&quot;, &quot;1,158&quot;, &quot;244&quot;, &quot;8,…
-## $ County.Value &lt;fct&gt; 20%, 21%, 21%, 24%, 16%, 17%, 20%, 20%, 29%, 22%, 22%, 1…
-## $ trend        &lt;lgl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-## $ Error.Margin &lt;fct&gt; 18-22%, 19-23%, 19-23%, 22-27%, 14-18%, 15-19%, 18-22%, …
-## $ Z.Score.     &lt;fct&gt; -0.31, -0.04, 0.04, 0.76, -1.2, -1.04, -0.22, -0.36, 2.0…</code></pre>
+data4 &lt;- read.csv(&quot;~/pphd.csv&quot;)  #poor physical health days </code></pre>
 </div>
 <div id="tidying-reshaping" class="section level4">
 <h4>Tidying: Reshaping</h4>
 <p>If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.</p>
+<p>A tidy dataset included each variable in its own column. each observation in its own row, and each value in its own cell. Since my data is already tidy, I will join the four different datasets and come back to this section to demonstrate my understanding of reshaping data.</p>
 <pre class="r"><code># your tidying code (if applicable; can also wait until
 # wrangling section)</code></pre>
 </div>
 <div id="joiningmerging" class="section level4">
 <h4>Joining/Merging</h4>
-<pre class="r"><code># your joining code
-
-# your joining code</code></pre>
-<p>Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
+<pre class="r"><code># cleaning data sets using select() and rename()
+data1 &lt;- subset(data1, select = c(County, X..Uninsured))
+data1 &lt;- rename(data1, Uninsured = X..Uninsured)
+data1 %&gt;% group_by(County) %&gt;% summarise(n())</code></pre>
+<pre><code>## # A tibble: 254 x 2
+##    County    `n()`
+##    &lt;fct&gt;     &lt;int&gt;
+##  1 Anderson      1
+##  2 Andrews       1
+##  3 Angelina      1
+##  4 Aransas       1
+##  5 Archer        1
+##  6 Armstrong     1
+##  7 Atascosa      1
+##  8 Austin        1
+##  9 Bailey        1
+## 10 Bandera       1
+## # … with 244 more rows</code></pre>
+<pre class="r"><code>data2 &lt;- subset(data2, select = c(County, X..Unemployed, Labor.Force))
+data2 &lt;- rename(data2, Unemployed = X..Unemployed)
+data2 %&gt;% group_by(County) %&gt;% summarise(n())</code></pre>
+<pre><code>## # A tibble: 254 x 2
+##    County    `n()`
+##    &lt;fct&gt;     &lt;int&gt;
+##  1 Anderson      1
+##  2 Andrews       1
+##  3 Angelina      1
+##  4 Aransas       1
+##  5 Archer        1
+##  6 Armstrong     1
+##  7 Atascosa      1
+##  8 Austin        1
+##  9 Bailey        1
+## 10 Bandera       1
+## # … with 244 more rows</code></pre>
+<pre class="r"><code>data3 &lt;- subset(data3, select = c(County, County.Value.))
+data3 &lt;- rename(data3, PoorMHdays = County.Value.)
+data3 %&gt;% group_by(County) %&gt;% summarise(n())</code></pre>
+<pre><code>## # A tibble: 254 x 2
+##    County    `n()`
+##    &lt;fct&gt;     &lt;int&gt;
+##  1 Anderson      1
+##  2 Andrews       1
+##  3 Angelina      1
+##  4 Aransas       1
+##  5 Archer        1
+##  6 Armstrong     1
+##  7 Atascosa      1
+##  8 Austin        1
+##  9 Bailey        1
+## 10 Bandera       1
+## # … with 244 more rows</code></pre>
+<pre class="r"><code>data4 &lt;- subset(data4, select = c(County, County.Value.))
+data4 &lt;- rename(data4, PoorPHdays = County.Value.)
+data4 %&gt;% group_by(County) %&gt;% summarise(n())</code></pre>
+<pre><code>## # A tibble: 254 x 2
+##    County    `n()`
+##    &lt;fct&gt;     &lt;int&gt;
+##  1 Anderson      1
+##  2 Andrews       1
+##  3 Angelina      1
+##  4 Aransas       1
+##  5 Archer        1
+##  6 Armstrong     1
+##  7 Atascosa      1
+##  8 Austin        1
+##  9 Bailey        1
+## 10 Bandera       1
+## # … with 244 more rows</code></pre>
+<pre class="r"><code># joining code below
+full &lt;- full_join(data1, data2, by = c(&quot;County&quot;))
+full2 &lt;- full_join(full, data3, by = c(&quot;County&quot;))
+finaljoin &lt;- full_join(full2, data4, by = c(&quot;County&quot;))</code></pre>
+<p>The data sets had more information than is needed, thus I went ahead and selected only the relevant columns with the select() function. I addition, I used the rename() function to label some of the columns to have a more informative title. To join all four dataset, I chose do do a full join because I cleaned up the datasets beforehand and only had the relevant columns.There are 254 observations in each of the 4 datasest. The datasets include the names of the counties in Texas, therefore it makes sense that they include 254 rows.</p>
 </div>
 <div id="wrangling" class="section level4">
 <h4>Wrangling</h4>
 <pre class="r"><code># your wrangling code
+finaljoin %&gt;% distinct(County) %&gt;% summarise(sum(str_detect(County, 
+    &quot;[ ]&quot;)))</code></pre>
+<pre><code>##   sum(str_detect(County, &quot;[ ]&quot;))
+## 1                             17</code></pre>
+<pre class="r"><code>finaljoin %&gt;% distinct(County) %&gt;% group_by(County) %&gt;% filter(str_detect(County, 
+    &quot;(.)\\1&quot;))</code></pre>
+<pre><code>## # A tibble: 73 x 1
+## # Groups:   County [73]
+##    County       
+##    &lt;fct&gt;        
+##  1 Bee          
+##  2 Bell         
+##  3 Brooks       
+##  4 Caldwell     
+##  5 Callahan     
+##  6 Cass         
+##  7 Cherokee     
+##  8 Childress    
+##  9 Collin       
+## 10 Collingsworth
+## # … with 63 more rows</code></pre>
+<pre class="r"><code># arrange, mutate-ifelse
 
-# your wrangling code
+# mean, sd, var, n, quintile, min, max, n_distinict cor
 
 # your wrangling code</code></pre>
 <p>Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.</p>
