@@ -23,8 +23,7 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 #### Introduction 
 
-Paragraph or two introducing your datasets and variables, why they are interesting to you, etc. 
-I obtained the following data for counties in Texas from the county health ranking website. The Data3 includes the average number of poor mental health days during a span of 30 days for Texas counties.  
+I obtained the following data for counties from 2016 in Texas from the county health ranking website. The dataset "data1" includes the number of uninsured individuals in Texas counties. Data2 includes the number of unemployed people and the number of people that make up the labor force in Texas counties. The datasets Data3 and Data4 include the average number of poor mental health days during a span of 30 days for all 254 Texas counties. These ariables are interesting to me because these are all important factors that make up an individual's life. I aim to see if these variable have a relationship since practically, they seem to be related. For example, if someone is not feeling well physically, and they do not have a job that might also mean they do not have health insurance; therefore,it makes sense that the person might also experience a poor mental health day. 
 
 ```{R}
 library(tidyverse)
@@ -38,12 +37,11 @@ data4 <- read.csv("~/pphd.csv") #poor physical health days
 
 If your datasets are tidy already, demonstrate that you can reshape data with pivot wider/longer here (e.g., untidy and then retidy). Alternatively, it may be easier to wait until the wrangling section so you can reshape your summary statistics. Note here if you are going to do this.
 
-A tidy dataset included each variable in its own column. each observation in its own row, and each value in its own cell. Since my data is already tidy, I will join the four different datasets and come back to this section to demonstrate my understanding of reshaping data. 
 
 ```{R}
 # your tidying code (if applicable; can also wait until wrangling section)
 ```
-
+A tidy dataset included each variable in its own column. each observation in its own row, and each value in its own cell. Since my data is already tidy, I will join the four different datasets and calculate summary statistics on that tidy dataset and make a table of those statistics 
     
 #### Joining/Merging
 
@@ -51,19 +49,22 @@ A tidy dataset included each variable in its own column. each observation in its
 # cleaning data sets using select() and rename()
 data1<- subset(data1, select=c(County,X..Uninsured)) 
 data1<- rename(data1, Uninsured=X..Uninsured)
-data1 %>% group_by(County) %>% summarise(n())
+count1<-data1 %>% group_by(County) %>% summarise(n())
 
 data2<- subset(data2, select=c(County,X..Unemployed, Labor.Force))
 data2<-rename(data2, Unemployed=X..Unemployed)
-data2 %>% group_by(County) %>% summarise(n())
+count2<-data2 %>% group_by(County) %>% summarise(n())
 
 data3<- subset(data3, select=c(County,County.Value.))
 data3<-rename(data3, PoorMHdays=County.Value.)
-data3 %>% group_by(County) %>% summarise(n())
+cunt3<-data3 %>% group_by(County) %>% summarise(n())
 
 data4<- subset(data4, select=c(County,County.Value.))
 data4<-rename(data4, PoorPHdays=County.Value.)
-data4 %>% group_by(County) %>% summarise(n())
+count4<-data4 %>% group_by(County) %>% summarise(n())
+
+unique<-union(data1$County, data2$County)
+unique2<-union(data3$County, data4$County)
 
 # joining code below 
 full<- full_join(data1, data2, by=c("County"))
@@ -71,47 +72,73 @@ full2<- full_join(full, data3, by=c("County"))
 finaljoin<- full_join(full2, data4, by=c("County"))
 ```
 
-The data sets had more information than is needed, thus I went ahead and selected only the relevant columns with the select() function. I addition, I used the rename() function to label some of the columns to have a more informative title. To join all four dataset, I chose do do a full join because I cleaned up the datasets beforehand and only had the relevant columns.There are 254 observations in each of the 4 datasest. The datasets include the names of the counties in Texas, therefore it makes sense that they include 254 rows.    
+The data sets had more information than is needed, thus I went ahead and selected only the relevant columns with the select() function. I addition, I used the rename() function to label some of the columns to have a more informative title. PoorMHdays signifies Poor Mental health days and PoorPHdays stands for Poor Physical health days. To join all four dataset, I chose do do a full join because I cleaned up the datasets beforehand and only had the relevant columns.There are 254 observations in each of the 4 datasest. The datasets include the names of the counties in Texas, therefore it makes sense that they all include 254 distinct rows. Since they all had the same mount of rows, none of the observations were dropped.     
 
 ####  Wrangling
 
 ```{R}
-# your wrangling code
+#using the 6 dyply functions
 finaljoin %>% distinct(County) %>% summarise(sum(str_detect(County, "[ ]")))
-finaljoin %>% distinct(County) %>% group_by(County) %>% filter(str_detect(County, "(.)\\1"))
-#arrange, mutate-ifelse
+doubleletter<-finaljoin %>% distinct(County) %>% group_by(County) %>% filter(str_detect(County, "(.)\\1"))
 
-#mean, sd, var, n, quintile, min, max, n_distinict cor
+#arrange STILL NEED TO DO 
+library(knitr) # This is to use kable()
+newfull<-mutate(finaljoin, GoodMH= ifelse(PoorMHdays<4 ,"Yes","No")) #made a new column with Good MH days 
 
-# your wrangling code
+# stats for Unemployment and Number Uninsured; mean, sd, var, cor, n_ distinct  
+tab<-newfull %>% summarise(Mean_Uninsured=mean(c(Uninsured), na.rm = TRUE), var(c(Uninsured)),sd_Uninsured=sd(c(Uninsured)), mean_Unemployed=mean(c(Unemployed), na.rm = TRUE), n=n(), sd_Unemployed=sd(c(Unemployed)), min(c(Uninsured)), max(c(Uninsured)), min(c(Unemployed)), max(c(Unemployed)), n_distinct(Unemployed, Uninsured)) %>% kable()
+
+#quantile
+newfull %>% summarise(quantile(c(Uninsured)), quantile(c(Unemployed)), quantile(PoorMHdays), quantile(PoorPHdays)) %>% kable(caption = "Quantiles for the Four Relevant Variables")
+
+                                                   
+# stats for Poor Mental Health Days and Poor Physical Health Days grouped by Good Mental health days; mean, sd, var, cor, n_ distinct  
+newfull %>% group_by(GoodMH== "Yes") %>% summarize(Mean_PMHD=mean(PoorPHdays), n = n(),sd_PMHD=sd(PoorMHdays), var(PoorPHdays), min(PoorMHdays), Mean_PPHD=mean(PoorMHdays), sd_PPHD= sd(PoorPHdays), var(PoorPHdays), cor(PoorPHdays,PoorMHdays), n_distinct(PoorMHdays, PoorPHdays)) %>% kable(caption = "Statistics for Poor Mental and Physical Health days in one Month")
+  
+catagoricaltable<-newfull %>% summarise(GoodMH, n=n()) %>% kable()
+
+graph2<-newfull %>% mutate(ratio= c(Unemployed)/c(Labor.Force))
+
 ```
 
-Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
+I explored the newfull dataset that has the four original datasets with the str and filter functions. I sued the first str function to see which counties have a space in their name and the filter function to search for the ones that have a double letter in their name. I made a new column that includes that has the condition of Good mental health days, which in this case will be any value greater than 4. I obtained the statistics for the Uninsured and Unemployed variables and to avoid printing a long table, I gave it a name. In the next table, I obtained the quantile values and labeled the kable(). The last table shows the statistics mean, sd, var, cor, n_ distinct for the PoorMHdays and the PoorPHdays variables. I also made a table for the one categorical variable (Counties) and I named that to avoid printing a long table. Lastly, I made a new   
 
 
 #### Visualizing
 
 ```{R}
-# your plot 1
+library(ggplot2)
+ggplot(data = newfull, aes(x= PoorMHdays, y=PoorPHdays)) +
+  geom_point(size=4, aes(color="pink", alpha= 0.5)) +
+   scale_y_continuous(limits = c(2,7)) + 
+  ggtitle("Plot 1.Average Poor Mantal and Physical Health Days During 30 days") + 
+  xlab("Poor Mental Health Days") + ylab("Poor Physical Health Days") + theme_minimal() + theme(legend.position = "none")
+
 ```
 
-Your discussion of plot 1
+This plot shows the average number of Poor Physical and Mental health days during the span of 30 days. This clearly shows that these two variables have a direct relationship. The trend indicates that as Texans have more Poor Mental Health days, they also have more Poor Physical health days. I think this makes sense because if one has a bad day regarding physical health, that can impact how our entire day goes and thus influencing our day mentally. Lastly, I added more tick marks to the y-axis with the scale_y_continuous function and changed the color and transparency. 
 
 ```{R}
 # your plot 2
+small <-graph2 %>% slice(10:20)
+ggplot(graph2, aes(x=PoorMHdays, y=ratio, color="pink")) +
+  geom_bar(stat = "summary", fun=mean, color="pink")+
+  ggtitle("Graph 2. Ratio of Unemploymet and Labor force Vs. PoorMHdays")+ theme_light()
 ```
-
-Your discussion of plot 2
+For this plot I wanted to see it there was a relationship between the ratio of Unemployment and the Labor force and the average number of poor mental health days that individuals from Texas experience over one month. I was expecting to see that as the ratio increased, so did the number of poor mental health days. There does not appear to be a trend or a relationship between these two varibales.   
 
 ```{R}
 # your plot 3
+ggplot(graph2, aes(x=ratio, y=PoorPHdays, fill="pink")) +
+  geom_boxplot(color="pink",width=0.4) + ggtitle("Graph 3.Boxplot of Ratio and Poor Physical Health days")+
+  theme_dark() + theme(legend.position = "none")
 ```
 
-Your discussion of plot 3
+In this plot, we can see that the distribution is centered and there are no obvious outliers. This is is supported by the previous graph since the poor mental health days and the poor physical health days were directly proportional to each other, as seen in Graph 1. 
 
 #### Concluding Remarks
 
-If any!
+These visualizations showed a relationship between the number of average Poor Mental Health days and the number of Poor Physical Health days of Texas Residents during the span of 30 days in 2016. There was no clear trend between the PoorMH and PoorPH days and the ratio off Unemployment and the Labor force. 
 
 
 
